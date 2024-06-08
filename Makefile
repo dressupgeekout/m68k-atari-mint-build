@@ -11,8 +11,8 @@ REPOSITORY_MINTLIB	= mintlib
 REPOSITORY_MINTBIN	= mintbin
 REPOSITORY_FDLIBM	= fdlibm
 
-BRANCH_BINUTILS		= binutils-2_42-mintelf
-BRANCH_GCC			= gcc-13-mintelf
+BRANCH_BINUTILS		= binutils-2_30-mint
+BRANCH_GCC			= gcc-7-mint
 BRANCH_MINTLIB		= master
 BRANCH_MINTBIN		= master
 BRANCH_FDLIBM		= master
@@ -38,8 +38,8 @@ ARCHIVE_FDLIBM		= ${REPOSITORY_FDLIBM}-${BRANCH_FDLIBM}.tar.gz
 DOWNLOADS 			= downloads/${ARCHIVE_BINUTILS} downloads/${ARCHIVE_GCC} downloads/${ARCHIVE_MINTLIB} downloads/${ARCHIVE_MINTBIN} downloads/${ARCHIVE_FDLIBM}
 FOLDERS 			= downloads/${FOLDER_BINUTILS}.ok downloads/${FOLDER_GCC}.ok downloads/${FOLDER_MINTLIB}.ok downloads/${FOLDER_MINTBIN}.ok downloads/${FOLDER_FDLIBM}.ok
 
-VERSION_BINUTILS	= 2.42
-VERSION_GCC			= 13.3.0
+VERSION_BINUTILS	= 2.30
+VERSION_GCC			= 7.5.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
@@ -179,11 +179,11 @@ downloads/${FOLDER_BINUTILS}.ok: downloads/${ARCHIVE_BINUTILS}
 	cd downloads && tar xzf ${ARCHIVE_BINUTILS}
 	touch "$@"
 
-downloads/${FOLDER_GCC}.ok: downloads/${ARCHIVE_GCC} gcc-atari.patch
+downloads/${FOLDER_GCC}.ok: downloads/${ARCHIVE_GCC} gmp-none.patch
 	rm -rf downloads/${FOLDER_GCC}
 	cd downloads && tar xzf ${ARCHIVE_GCC}
 	cd downloads/${FOLDER_GCC} && contrib/download_prerequisites
-	cd downloads/${FOLDER_GCC} && patch -p1 < ../../gcc-atari.patch
+	cd downloads/${FOLDER_GCC}/gmp && patch -p1 < ../../../gmp-none.patch
 	touch "$@"
 
 downloads/${FOLDER_MINTLIB}.ok: downloads/${ARCHIVE_MINTLIB}
@@ -297,13 +297,12 @@ gcc-${VERSION_GCC}-cross-stage2-${CPU}.ok: ${INSTALL_DIR}/${TARGET}/sys-root/usr
 		--target=${TARGET} \
 		--with-sysroot \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
@@ -363,13 +362,12 @@ gcc-${VERSION_GCC}-atari-${CPU}.ok: downloads/${FOLDER_GCC}.ok
 		--with-sysroot="/" \
 		--with-build-sysroot="${INSTALL_DIR}/${TARGET}/sys-root" \
 		--disable-nls \
-		--enable-lto \
-		--enable-languages="c,c++,lto" \
+		--disable-lto \
+		--enable-languages="c,c++" \
 		--disable-libstdcxx-pch \
 		--disable-threads \
 		--disable-tls \
 		--disable-libgomp \
-		--disable-sjlj-exceptions \
 		--with-cpu=${CPU} \
 		--with-libstdcxx-zoneinfo=no \
 		--disable-libcc1 \
