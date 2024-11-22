@@ -43,9 +43,9 @@ VERSION_GCC			= 7.5.0
 
 SH      := $(shell which sh)
 BASH    := $(shell which bash)
-URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -q -O -"; else echo "curl -s -L -o -"; fi)
+URLGET	:= $(shell if [ -x "`command -v wget`" ]; then echo "wget -O -"; else echo "curl -s -L -o -"; fi)
 #CPUS	:= $(getconf _NPROCESSORS_ONLN)
-CPUS	:= 12
+CPUS	:= $(sysctl -n hw.ncpu)
 
 .PHONY: default help download depack clean \
 	clean-all       clean-all-skip-native       clean-all-native       all       all-skip-native       all-native \
