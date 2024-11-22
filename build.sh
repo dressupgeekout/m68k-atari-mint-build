@@ -1,4 +1,6 @@
-#!/bin/sh -eux
+#!/bin/sh
+
+set -eux
 
 target=m68k-atari-mint
 
@@ -63,12 +65,14 @@ if [ -z "$indices" ] ; then
 	exit 1
 fi
 
+MIN_PATH="/usr/pkg/bin:/usr/bin:/bin"
+
 if [ $clean -eq 0 -a $native_only -eq 0 ] ; then
 	# build & install temporary toolchain
 	DESTDIR="$PWD/preliminary"
-	${MAKE} PATH="$DESTDIR/bin:/usr/bin" TARGET=$target PREFIX="" DESTDIR="$DESTDIR" binutils-preliminary gcc-preliminary
+	${MAKE} PATH="$DESTDIR/bin:${MIN_PATH}" TARGET=$target PREFIX="" DESTDIR="$DESTDIR" binutils-preliminary gcc-preliminary
 	# build & install mintlib/fdlibm (to make fdlibm's ./configure happy)
-	${MAKE} PATH="$DESTDIR/bin:/usr/bin" TARGET=$target DESTDIR="$DESTDIR/$target/sys-root" mintlib-preliminary fdlibm-preliminary
+	${MAKE} PATH="$DESTDIR/bin:${MIN_PATH}" TARGET=$target DESTDIR="$DESTDIR/$target/sys-root" mintlib-preliminary fdlibm-preliminary
 elif [ $clean -ne 0 -a $native_only -eq 0 ] ; then
 	# TODO: this is called even in 'make clean-cross'
 	${MAKE} TARGET=$target DESTDIR="$PWD/preliminary" clean-preliminary
@@ -86,7 +90,7 @@ do
 			DESTDIR="$INSTALL_DIR/$dir/$target/sys-root"
 
 			# install pre-built mintlib/fdlibm (mintlib's make install requires a working compiler)
-			${MAKE} PATH="$PWD/preliminary/bin:/usr/bin" CPU="$cpu" TARGET=$target DESTDIR="$DESTDIR" mintlib fdlibm || exit 1
+			${MAKE} PATH="$PWD/preliminary/bin:${MIN_PATH}" CPU="$cpu" TARGET=$target DESTDIR="$DESTDIR" mintlib fdlibm || exit 1
 
 			# remove mintlib m68000 leftovers
 			rm -r "$DESTDIR/sbin"
@@ -114,16 +118,16 @@ do
 			fi
 
 			# install pre-built binutils
-			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" DESTDIR="$INSTALL_DIR/$dir" binutils || exit 1
+			${MAKE} PATH="$INSTALL_DIR/$dir/bin:${MIN_PATH}" CPU="$cpu" DESTDIR="$INSTALL_DIR/$dir" binutils || exit 1
 			# build & install gcc
- 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" gcc || exit 1
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:${MIN_PATH}" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" gcc || exit 1
  			# build & install mintbin
- 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target PREFIX="" DESTDIR="$INSTALL_DIR/$dir" mintbin || exit 1
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:${MIN_PATH}" CPU="$cpu" TARGET=$target PREFIX="" DESTDIR="$INSTALL_DIR/$dir" mintbin || exit 1
  		fi
 
  		if [ $skip_native -eq 0 ] ; then
- 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" OPT="$opt" binutils-atari gcc-atari mintbin-atari || exit 1
- 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:/usr/bin" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" strip-atari pack-atari || exit 1
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:${MIN_PATH}" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" OPT="$opt" binutils-atari gcc-atari mintbin-atari || exit 1
+ 			${MAKE} PATH="$INSTALL_DIR/$dir/bin:${MIN_PATH}" CPU="$cpu" TARGET=$target INSTALL_DIR="$INSTALL_DIR/$dir" strip-atari pack-atari || exit 1
  		fi
  	else
  		if [ $native_only -eq 0 ] ; then
